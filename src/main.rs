@@ -1,15 +1,18 @@
 #[macro_use]
 extern crate clap;
+
 use url::Url;
 use std::str::FromStr;
+
+mod aastra;
+
 fn main() {
+
 let matches = clap_app!(Indraaastra => 
     (@arg number: -n  +takes_value validator(validate_num) "number of requests")
     (@arg url: +required  validator(validate_url) "http[s]://]hostname[:port]/path")).get_matches();
-    if let Some(n) = matches.value_of("number"){
-        println!("{}",n);
-    }
-    println!("{}",matches.value_of("url").unwrap());
+	let a = aastra::Aastra::new(matches);
+	a.run();
 }
 
 fn validate_num(num:String)->Result<(),String> {
