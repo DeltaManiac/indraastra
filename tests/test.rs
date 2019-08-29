@@ -1,34 +1,65 @@
-use assert_cmd::prelude::*;
-use predicates::boolean::PredicateBooleanExt;
-use predicates::str::contains;
-use std::process::Command;
+#[cfg(test)]
+mod cli {
+    use assert_cmd::prelude::*;
+    use std::process::Command;
+    const BINARY_NAME: &str = "indraastra";
 
-const BINARY_NAME: &str = "indraastra";
+    #[test]
+    fn no_args() {
+        Command::cargo_bin(BINARY_NAME).unwrap().assert().failure();
+    }
 
-// Indraastra with no args should fail
-#[test]
-fn aastra_no_args() {
-    Command::cargo_bin(BINARY_NAME).unwrap().assert().failure();
-}
+    #[test]
+    fn invalid_url_arg() {
+        Command::cargo_bin(BINARY_NAME)
+            .unwrap()
+            .args(&["url"])
+            .assert()
+            .failure();
+    }
 
-// Indrastra with url should print the url
-#[test]
-fn aastra_url_arg() {
-    Command::cargo_bin(BINARY_NAME)
-        .unwrap()
-        .args(&["url"])
-        .assert()
-        .success()
-        .stdout(contains("url"));
-}
+    #[test]
+    fn empty_url_arg() {
+        Command::cargo_bin(BINARY_NAME)
+            .unwrap()
+            .args(&[""])
+            .assert()
+            .failure();
+    }
 
-// Indrastra with url -n 50 should print the url and 50
-#[test]
-fn aastra_url_arg_and_number() {
-    Command::cargo_bin(BINARY_NAME)
-        .unwrap()
-        .args(&["url", "-n", "50"])
-        .assert()
-        .success()
-        .stdout(contains("url").and(contains("50")));
+    #[test]
+    fn valid_url_arg() {
+        Command::cargo_bin(BINARY_NAME)
+            .unwrap()
+            .args(&["https://google.com/"])
+            .assert()
+            .success();
+    }
+
+    #[test]
+    fn invalid_num_req() {
+        Command::cargo_bin(BINARY_NAME)
+            .unwrap()
+            .args(&["https://www.google.com", "-n", "a50"])
+            .assert()
+            .failure();
+    }
+
+    #[test]
+    fn empty_num_req() {
+        Command::cargo_bin(BINARY_NAME)
+            .unwrap()
+            .args(&["https://www.google.com", "-n", ""])
+            .assert()
+            .failure();
+    }
+
+    #[test]
+    fn valid_num_req() {
+        Command::cargo_bin(BINARY_NAME)
+            .unwrap()
+            .args(&["https://www.google.com", "-n", "50"])
+            .assert()
+            .success();
+    }
 }
