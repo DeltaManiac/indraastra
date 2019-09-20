@@ -11,8 +11,8 @@ fn main() {
 let matches = clap_app!(Indraaastra => 
     (@arg number: -n  +takes_value validator(validate_num) "number of requests")
     (@arg url: +required  validator(validate_url) "http[s]://]hostname[:port]/path")).get_matches();
-	let a = aastra::Aastra::new(matches);
-	a.run();
+	let mut a = aastra::Aastra::new(matches);
+	a.run_sync_serially();
 }
 
 fn validate_num(num:String)->Result<(),String> {
